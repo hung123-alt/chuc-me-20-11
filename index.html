@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chúc Mừng 20/11 — Tặng Mẹ Yêu 🌹</title>
+<meta name="description" content="Website 3D vườn hoa tặng Mẹ nhân ngày Nhà giáo Việt Nam 20/11">
+<link rel="stylesheet" href="style.css">
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="scene"></canvas>
+
+<div class="vignette"></div>
+
+<header class="topbar">
+  <div class="brand">🌹 Tặng Mẹ Yêu — 20/11</div>
+  <div class="controls">
+    <div class="seg" role="group" aria-label="Ánh sáng">
+      <button data-light="morning" class="on">Sáng</button>
+      <button data-light="golden">Hoàng hôn</button>
+      <button data-light="night">Đêm sao</button>
+    </div>
+    <div class="seg" role="group" aria-label="Góc nhìn">
+      <button data-view="front" class="on">Trước</button>
+      <button data-view="corner">Góc</button>
+      <button data-view="low">Thấp</button>
+      <button data-view="aerial">Trên cao</button>
+    </div>
+    <button id="musicBtn" class="pill" aria-pressed="false">♪ Nhạc: tắt</button>
+  </div>
+</header>
+
+<main id="story">
+  <section class="panel hero" id="hero">
+    <p class="kicker">Nhân ngày Nhà giáo Việt Nam • 20 / 11</p>
+    <h1 class="title"><span>Chúc Mừng</span><span class="gold">Mẹ Yêu</span></h1>
+    <p class="sub">Mẹ là cô giáo đầu tiên của con — dạy con biết yêu thương, biết đứng dậy sau mỗi lần vấp ngã.</p>
+    <div class="cta-row">
+      <a href="#thu" class="btn primary">💌 Đọc thư gửi Mẹ</a>
+      <button class="btn ghost" id="bloomBtn">🌸 Nở hoa tặng Mẹ</button>
+    </div>
+    <p class="hint">Cuộn xuống — camera sẽ bay qua vườn hoa 3D • cánh hoa rơi theo tay bạn</p>
+  </section>
+
+  <section class="panel" id="thu">
+    <div class="card letter">
+      <p class="kicker">Thư gửi Mẹ</p>
+      <h2>Mẹ ơi, con cảm ơn Mẹ…</h2>
+      <p>Cảm ơn Mẹ đã thức khuya dậy sớm, đã kiên nhẫn dạy con từng con chữ, từng phép tính — rồi lại kiên nhẫn dạy con làm người.</p>
+      <p>Nhân ngày 20/11, con chúc Mẹ luôn <b>khỏe mạnh, bình an, cười thật nhiều</b>. Con yêu Mẹ nhiều lắm! ❤️</p>
+      <div class="sign">— Con của Mẹ —</div>
+      <div class="cta-row">
+        <button class="btn primary" id="openLetter">✍️ Viết thư cho Mẹ</button>
+        <button class="btn ghost" id="petalBurst">🌧️ Thả mưa cánh hoa</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="hoa">
+    <div class="card photo-card">
+      <p class="kicker">Bông hoa tặng Mẹ</p>
+      <h2>Một đóa hồng — ngàn lời yêu</h2>
+      <figure>
+        <img src="assets/pink-rose-in-india-this-pink-rose.jpg" alt="Bông hồng hồng đang nở rộ tặng mẹ" width="960" height="1280">
+        <figcaption>Hoa hồng — biểu tượng của tình yêu và lòng biết ơn dành cho Mẹ.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="panel finale" id="loichuc">
+    <div class="card wishes">
+      <p class="kicker">20 / 11 / 2026</p>
+      <h2>Chúc Mẹ Yêu mãi rạng rỡ 🌹</h2>
+      <div class="wish-grid">
+        <div>🌿 <b>Sức khỏe</b><br>dồi dào mỗi ngày</div>
+        <div>😊 <b>Niềm vui</b><br>ngập tràn nhà mình</div>
+        <div>✨ <b>Bình an</b><br>trên mọi nẻo đường</div>
+      </div>
+      <p class="hint">Chạm / rê chuột lên vườn hoa để cánh hoa bay theo ✨</p>
+    </div>
+  </section>
+
+  <footer class="credits">
+    Ảnh: "Pink Rose in India…" © Davinder singh01, CC BY-SA 4.0, via Wikimedia Commons •
+    Web 3D dựng bằng three.js + GSAP + Lenis, không dùng model tải ngoài.
+  </footer>
+</main>
+
+<div class="modal" id="letterModal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="lmTitle">
+    <h2 id="lmTitle">✍️ Viết thư cho Mẹ</h2>
+    <label>Mẹ yêu dấu của con…<textarea id="letterText" rows="7">Mẹ ơi, nhân ngày 20/11 con chúc Mẹ luôn khỏe mạnh, vui vẻ và bình an. Con yêu Mẹ nhiều lắm! ❤️</textarea></label>
+    <label>Ký tên<input id="letterSign" value="Con của Mẹ"></label>
+    <div class="cta-row">
+      <button class="btn primary" id="saveLetter">💾 Lưu &amp; khoe thư</button>
+      <button class="btn ghost" id="closeLetter">Đóng</button>
+    </div>
+    <div class="saved-letter" id="savedLetter" hidden></div>
+  </div>
+</div>
+
+<div id="toast" role="status"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+<script type="module" src="main.js"></script>
+</body>
+</html>

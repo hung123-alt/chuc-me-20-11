@@ -1,0 +1,43 @@
+:root{--ink:#fff7ee;--gold:#ffd27a;--rose:#ff6b9d;--card:rgba(20,12,28,.62);--line:rgba(255,255,255,.16)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+html,body{margin:0;padding:0;color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,Roboto,"Be Vietnam Pro",Arial,sans-serif;background:#12081f}
+#scene{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0}
+.vignette{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(120% 90% at 50% 30%,transparent 55%,rgba(10,4,20,.55) 100%)}
+.topbar{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;gap:12px;align-items:center;justify-content:space-between;padding:10px 14px;background:linear-gradient(180deg,rgba(10,5,20,.72),transparent);flex-wrap:wrap}
+.brand{font-weight:800;letter-spacing:.3px;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.seg{display:flex;background:rgba(255,255,255,.1);border:1px solid var(--line);border-radius:999px;padding:3px;backdrop-filter:blur(8px)}
+.seg button{border:0;background:transparent;color:var(--ink);padding:7px 12px;border-radius:999px;cursor:pointer;font-weight:600;font-size:13px}
+.seg button.on{background:linear-gradient(135deg,#ff6b9d,#ff9f43);color:#231019;box-shadow:0 4px 16px rgba(255,107,157,.45)}
+.pill{border:1px solid var(--line);background:rgba(255,255,255,.12);color:var(--ink);border-radius:999px;padding:8px 14px;cursor:pointer;font-weight:700;backdrop-filter:blur(8px)}
+#story{position:relative;z-index:2}
+.panel{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:90px 20px 40px}
+.kicker{letter-spacing:3px;text-transform:uppercase;font-size:12px;opacity:.85}
+.title{font-size:clamp(48px,9vw,110px);line-height:.95;margin:.2em 0;text-shadow:0 10px 40px rgba(255,107,157,.35)}
+.title span{display:block}.title .gold{background:linear-gradient(135deg,#ffe29a,#ff6b9d,#c471ed);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 6px 24px rgba(255,107,157,.4))}
+.sub{max-width:640px;font-size:clamp(15px,2.4vw,19px);opacity:.92}
+.cta-row{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap;justify-content:center}
+.btn{border:0;border-radius:999px;padding:13px 22px;font-weight:800;cursor:pointer;font-size:15px;text-decoration:none;display:inline-block;transition:transform .2s}
+.btn:hover{transform:translateY(-2px) scale(1.02)}
+.btn.primary{background:linear-gradient(135deg,#ff6b9d,#ff9f43);color:#2a0f1c;box-shadow:0 10px 30px rgba(255,107,157,.45)}
+.btn.ghost{background:rgba(255,255,255,.12);color:var(--ink);border:1px solid var(--line);backdrop-filter:blur(8px)}
+.hint{margin-top:16px;font-size:13px;opacity:.75}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:28px;max-width:680px;width:min(92vw,680px);backdrop-filter:blur(12px);box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.card h2{margin:.2em 0 .4em;font-size:clamp(26px,4.5vw,40px)}
+.card p{line-height:1.7}
+.letter{text-align:left}.sign{margin-top:10px;font-style:italic;color:var(--gold);font-size:18px}
+.photo-card img{width:100%;height:auto;border-radius:16px;display:block;box-shadow:0 14px 40px rgba(0,0,0,.5)}
+.photo-card figcaption{margin-top:10px;font-size:14px;opacity:.85}
+.wish-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
+.wish-grid div{background:rgba(255,255,255,.08);border:1px solid var(--line);border-radius:16px;padding:14px 8px;font-size:14px;line-height:1.5}
+.credits{position:relative;z-index:2;text-align:center;font-size:12px;opacity:.7;padding:24px 16px 40px;max-width:800px;margin:0 auto}
+.modal{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;background:rgba(8,3,16,.6);padding:16px}
+.modal[hidden]{display:none}
+.modal-card{background:#1d1029;border:1px solid var(--line);border-radius:20px;padding:24px;width:min(94vw,560px);text-align:left}
+.modal-card label{display:block;margin:12px 0;font-weight:600}
+.modal-card textarea,.modal-card input{width:100%;margin-top:6px;border-radius:12px;border:1px solid var(--line);padding:12px;background:rgba(255,255,255,.08);color:var(--ink);font-size:15px}
+.saved-letter{margin-top:14px;background:rgba(255,255,255,.07);border:1px dashed var(--gold);border-radius:14px;padding:14px;line-height:1.7;white-space:pre-wrap}
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:#241228;border:1px solid var(--gold);color:var(--ink);padding:12px 18px;border-radius:999px;z-index:20;opacity:0;transition:.3s;pointer-events:none;max-width:90vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:640px){.wish-grid{grid-template-columns:1fr}.topbar{justify-content:center}.brand{width:100%;text-align:center}}
+@media(prefers-reduced-motion:reduce){.btn{transition:none}}
