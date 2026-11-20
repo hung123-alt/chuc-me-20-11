@@ -4338,17 +4338,31 @@ window.__seek   = v => { clock = v; drawn = null; };
 .love-wishes{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:22px}
 .love-wishes div{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:14px 8px;font-size:14px}
 @media(max-width:640px){.love-wishes{grid-template-columns:1fr}}
+#gate{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:rgba(20,24,18,.35);backdrop-filter:blur(3px);transition:opacity .6s;text-align:center;padding:20px}
+#gate.hide{opacity:0;pointer-events:none}
+#gateBtn{border:0;border-radius:28px;padding:26px 42px;font-size:22px;font-weight:800;cursor:pointer;background:linear-gradient(135deg,#ffd27a,#ff6b9d);color:#2a1a12;box-shadow:0 20px 60px rgba(255,107,157,.5);animation:pulse 1.6s infinite;font-family:inherit}
+#gateBtn small{display:block;font-size:14px;font-weight:600;margin-top:8px;opacity:.75}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
 #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:#1d211c;border:1px solid #ffd27a;color:#fff;padding:12px 18px;border-radius:999px;z-index:60;opacity:0;transition:.3s;pointer-events:none;max-width:90vw;text-align:center}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
+<div id="gate"><button id="gateBtn" type="button">🎁 Chạm để mở quà tặng Mẹ<small>nhạc nhẹ nhàng sẽ phát • chỉ cần chạm 1 lần</small></button></div>
 <div id="toast" role="status"></div>
 <script>
 (function(){
   var toast=function(m){var e=document.getElementById('toast');e.textContent=m;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(function(){e.classList.remove('show')},2600)};
   var bgm=document.getElementById('bgm');var playing=false;bgm.volume=0.15;
-  function setMusic(on){playing=on;var b=document.getElementById('musicBtn');if(b){b.textContent=playing?'♪ Nhạc: đang phát':'♪ Nhạc: tắt';b.setAttribute('aria-pressed',playing)}if(playing){bgm.volume=0.15;bgm.play().then(function(){toast('🎵 Giai điệu dành tặng Mẹ…')}).catch(function(){toast('⚠️ Bấm vào trang 1 cái để phát nhạc nhé')})}else{bgm.pause()}}
-  function autoPlay(){bgm.volume=0.15;bgm.play().then(function(){playing=true;var b=document.getElementById('musicBtn');if(b){b.textContent='♪ Nhạc: đang phát';b.setAttribute('aria-pressed','true')}}).catch(function(){var kick=function(){bgm.volume=0.15;bgm.play().then(function(){playing=true;var b=document.getElementById('musicBtn');if(b){b.textContent='♪ Nhạc: đang phát';b.setAttribute('aria-pressed','true')}}).catch(function(){});window.removeEventListener('pointerdown',kick);window.removeEventListener('keydown',kick);window.removeEventListener('touchstart',kick)};window.addEventListener('pointerdown',kick);window.addEventListener('keydown',kick);window.addEventListener('touchstart',kick)})}
+  function paintBtn(){var b=document.getElementById('musicBtn');if(b){b.textContent=playing?'\u266A Nh\u1EA1c: \u0111ang ph\u00E1t':'\u266A Nh\u1EA1c: t\u1EAFt';b.setAttribute('aria-pressed',playing)}}
+  function setMusic(on){playing=on;paintBtn();if(playing){bgm.volume=0.15;var p=bgm.play();if(p&&p.then){p.then(function(){toast('\uD83C\uDFB5 Giai \u0111i\u1EC7u d\u00E0nh t\u1EB7ng M\u1EB9\u2026')}).catch(function(){toast('\u26A0\uFE0F B\u1EA5m v\u00E0o trang 1 c\u00E1i \u0111\u1EC3 ph\u00E1t nh\u1EA1c nh\u00E9')})}}else{bgm.pause()}}
+  function unlock(){if(playing&&!bgm.paused)return;bgm.volume=0.15;var p=bgm.play();if(p&&p.then){p.then(function(){playing=true;paintBtn();hideGate()}).catch(function(){})}else{playing=true;paintBtn();hideGate()}}
+  function hideGate(){var g=document.getElementById('gate');if(g)g.classList.add('hide')}
+  // Tu dong thu: chay duoc tren trinh duyet de ( muted autoplay ), that bai thi doi 1 cham
+  function autoPlay(){bgm.volume=0.15;bgm.muted=true;var p=bgm.play();if(p&&p.then){p.then(function(){playing=true;paintBtn();bgm.muted=false;hideGate()}).catch(function(){bgm.muted=false})}else{bgm.muted=false}}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',autoPlay);else autoPlay();
+  var gb=document.getElementById('gateBtn');if(gb)gb.addEventListener('click',function(){unlock()});
+  window.addEventListener('pointerdown',function w(){unlock()},{once:false});
+  window.addEventListener('touchstart',function w2(){unlock()});
+  window.addEventListener('keydown',function w3(){unlock()});
   var mb=document.getElementById('musicBtn');if(mb)mb.addEventListener('click',function(){setMusic(!playing)});
   // Nút play tròn của Sylva -> bật/tắt nhạc luôn
   var play=document.querySelector('.liquid-button--play');if(play)play.addEventListener('click',function(){setMusic(!playing)});
