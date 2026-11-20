@@ -4345,8 +4345,10 @@ window.__seek   = v => { clock = v; drawn = null; };
 <script>
 (function(){
   var toast=function(m){var e=document.getElementById('toast');e.textContent=m;e.classList.add('show');clearTimeout(e._t);e._t=setTimeout(function(){e.classList.remove('show')},2600)};
-  var bgm=document.getElementById('bgm');var playing=false;
-  function setMusic(on){playing=on;var b=document.getElementById('musicBtn');if(b){b.textContent=playing?'♪ Nhạc: đang phát':'♪ Nhạc: tắt';b.setAttribute('aria-pressed',playing)}if(playing){bgm.volume=.85;bgm.play().then(function(){toast('🎵 Giai điệu dành tặng Mẹ…')}).catch(function(){toast('⚠️ Bấm lại nút Nhạc để phát nhé')})}else{bgm.pause()}}
+  var bgm=document.getElementById('bgm');var playing=false;bgm.volume=0.15;
+  function setMusic(on){playing=on;var b=document.getElementById('musicBtn');if(b){b.textContent=playing?'♪ Nhạc: đang phát':'♪ Nhạc: tắt';b.setAttribute('aria-pressed',playing)}if(playing){bgm.volume=0.15;bgm.play().then(function(){toast('🎵 Giai điệu dành tặng Mẹ…')}).catch(function(){toast('⚠️ Bấm vào trang 1 cái để phát nhạc nhé')})}else{bgm.pause()}}
+  function autoPlay(){bgm.volume=0.15;bgm.play().then(function(){playing=true;var b=document.getElementById('musicBtn');if(b){b.textContent='♪ Nhạc: đang phát';b.setAttribute('aria-pressed','true')}}).catch(function(){var kick=function(){bgm.volume=0.15;bgm.play().then(function(){playing=true;var b=document.getElementById('musicBtn');if(b){b.textContent='♪ Nhạc: đang phát';b.setAttribute('aria-pressed','true')}}).catch(function(){});window.removeEventListener('pointerdown',kick);window.removeEventListener('keydown',kick);window.removeEventListener('touchstart',kick)};window.addEventListener('pointerdown',kick);window.addEventListener('keydown',kick);window.addEventListener('touchstart',kick)})}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',autoPlay);else autoPlay();
   var mb=document.getElementById('musicBtn');if(mb)mb.addEventListener('click',function(){setMusic(!playing)});
   // Nút play tròn của Sylva -> bật/tắt nhạc luôn
   var play=document.querySelector('.liquid-button--play');if(play)play.addEventListener('click',function(){setMusic(!playing)});
