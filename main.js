@@ -5,7 +5,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 const canvas = document.getElementById('scene');
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.setSize(innerWidth, innerHeight);
 renderer.shadowMap.enabled = true;
@@ -25,6 +25,8 @@ controls.enableDamping = true;
 controls.maxPolarAngle = Math.PI * 0.495;
 controls.minDistance = 4; controls.maxDistance = 30;
 controls.target.set(0, 2.2, 0);
+controls.autoRotate = !reduced;   // camera tự xoay quanh vườn hoa
+controls.autoRotateSpeed = 0.9;
 
 // ---- Ánh sáng ----
 const hemi = new THREE.HemisphereLight(0xbfe3ff, 0x4a7c59, 0.9);
@@ -89,7 +91,8 @@ function makeRose(x, z, s, mi) {
     p.rotation.set(-Math.PI / 2 + 0.7, 0, -a);
     p.castShadow = true; ring.add(p);
   }
-  bloomers.push({ ring, bud, s: 0.6 + Math.random() * 0.5, ph: Math.random() * 6.28 });
+  bloomers.push({ ring, bud, group: g, x, z, s: 0.6 + Math.random() * 0.5, ph: Math.random() * 6.28, sway: 0.5 + Math.random() });
+  g.userData.ph = Math.random() * 6.28;
   g.position.set(x, 0, z);
   g.rotation.y = Math.random() * 6.28;
   flowers.add(g);
@@ -142,6 +145,21 @@ for (let i = 0; i <= 14; i++) {
   b.castShadow = true; scene.add(b);
 }
 
+// ---- Đàn bướm bay vỗ cánh ----
+const butterflies = [];
+const wingMat = new THREE.MeshBasicMaterial({ color: 0xffd27a, side: THREE.DoubleSide, transparent: true, opacity: 0.95 });
+const wingMat2 = new THREE.MeshBasicMaterial({ color: 0xff6b9d, side: THREE.DoubleSide, transparent: true, opacity: 0.95 });
+for (let i = 0; i < (reduced ? 3 : 9); i++) {
+  const b = new THREE.Group();
+  const wgeo = new THREE.PlaneGeometry(0.35, 0.28);
+  const wl = new THREE.Mesh(wgeo, i % 2 ? wingMat : wingMat2);
+  const wr = new THREE.Mesh(wgeo, i % 2 ? wingMat : wingMat2);
+  wl.position.x = -0.16; wr.position.x = 0.16;
+  b.add(wl, wr);
+  b.position.set((Math.random() - 0.5) * 18, 2 + Math.random() * 4, (Math.random() - 0.5) * 18);
+  scene.add(b);
+  butterflies.push({ g: b, wl, wr, r: 3 + Math.random() * 7, h: b.position.y, sp: 0.25 + Math.random() * 0.45, ph: Math.random() * 6.28, cx: (Math.random() - 0.5) * 6, cz: (Math.random() - 0.5) * 6 });
+}
 // ---- Mưa cánh hoa (instanced) ----
 const PETALS = reduced ? 60 : 260;
 const petalGeo = new THREE.PlaneGeometry(0.16, 0.22);
@@ -268,45 +286,57 @@ document.getElementById('saveLetter').onclick = () => {
   toast('💾 Đã lưu thư! Hãy đọc to cho Mẹ nghe nhé ❤️');
 };
 
-// ---- Nhạc: giai điệu ru tự sinh bằng WebAudio (không cần file ngoài) ----
-let actx = null, playing = false, seq = null;
-const MELODY = [523, 587, 659, 784, 880, 784, 659, 587, 523, 587, 659, 523, 440, 523, 0, 523];
-function lullaby() {
-  if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)();
-  let i = 0;
-  const play = () => {
-    if (!playing) return;
-    const f = MELODY[i % MELODY.length]; i++;
-    if (f) {
-      const o = actx.createOscillator(), g = actx.createGain();
-      o.type = 'sine'; o.frequency.value = f;
-      g.gain.setValueAtTime(0.0001, actx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.22, actx.currentTime + 0.08);
-      g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + 0.9);
-      o.connect(g).connect(actx.destination); o.start(); o.stop(actx.currentTime + 1);
-    }
-    seq = setTimeout(play, 480);
-  };
-  play();
-}
+// ---- Nhạc nền: file bạn gửi (assets/nhac-me.mp3, 35s, tự lặp) ----
+const bgm = new Audio('assets/nhac-me.mp3');
+bgm.loop = true; bgm.volume = 0.8;
+let playing = false;
 document.getElementById('musicBtn').onclick = e => {
   playing = !playing;
   e.currentTarget.textContent = playing ? '♪ Nhạc: đang phát' : '♪ Nhạc: tắt';
   e.currentTarget.setAttribute('aria-pressed', playing);
-  if (playing) lullaby(); else clearTimeout(seq);
-  if (playing) toast('🎵 Giai điệu êm dịu dành tặng Mẹ…');
+  if (playing) { bgm.play().catch(() => toast('⚠️ Trình duyệt chặn tự phát — bấm lại nút Nhạc nhé')); toast('🎵 Giai điệu dành tặng Mẹ…'); }
+  else bgm.pause();
 };
+
+// ---- Bay mở màn: camera từ xa lao vào vườn hoa ----
+if (!reduced) {
+  camera.position.set(0, 9, 30);
+  gsap.to(camera.position, { x: 0, y: 4.2, z: 14, duration: 3.2, ease: 'power3.out', delay: 0.3 });
+  gsap.to(controls.target, { x: 0, y: 2.2, z: 0, duration: 3.2, ease: 'power3.out', delay: 0.3 });
+}
+// Dừng xoay tự động khi người dùng đang kéo
+controls.addEventListener('start', () => { controls.autoRotate = false; });
+controls.addEventListener('end', () => { if (!reduced) setTimeout(() => controls.autoRotate = true, 3000); });
 
 // ---- Vòng lặp ----
 const clock = new THREE.Clock();
 function loop() {
   const t = clock.getElapsedTime();
-  heart.position.y = 2.6 + Math.sin(t * 1.4) * 0.15;
-  heart.rotation.y = Math.sin(t * 0.4) * 0.35;
-  title3d.position.y = 4.6 + Math.sin(t * 0.9) * 0.08;
+  // Trái tim: xoay liên tục + đập phình + lơ lửng
+  heart.position.y = 2.6 + Math.sin(t * 1.6) * 0.28;
+  heart.rotation.y += 0.012;
+  const beat = 1 + Math.max(0, Math.sin(t * 3.2)) * 0.12;
+  heart.scale.setScalar(burst ? 1.35 : beat);
+  heart.material.emissiveIntensity = 0.45 + Math.sin(t * 3.2) * 0.2 + burst * 0.5;
+  // Chữ 3D bay lơ lửng + xoay nhẹ về phía camera
+  title3d.position.y = 4.6 + Math.sin(t * 1.1) * 0.18;
+  // Hoa: đung đưa theo gió + sóng nở lan tỏa từ tâm
+  const wind = Math.sin(t * 0.8) * 0.5 + Math.sin(t * 2.3) * 0.2;
   bloomers.forEach(b => {
-    const s = b.s * (1 + Math.sin(t * 1.2 + b.ph) * 0.06);
-    b.ring.scale.setScalar(s); b.ring.rotation.y = t * 0.25 + b.ph;
+    const dist = Math.hypot(b.x, b.z);
+    const wave = 1 + Math.sin(t * 2.5 - dist * 0.8) * 0.12 + (burst ? 0.5 : 0);
+    b.ring.scale.setScalar(b.s * wave);
+    b.ring.rotation.y = t * 0.6 + b.ph;
+    b.group.rotation.z = Math.sin(t * 1.5 + b.ph) * 0.09 * b.sway + wind * 0.03;
+    b.group.rotation.x = Math.cos(t * 1.2 + b.ph) * 0.06 * b.sway;
+  });
+  // Bướm: bay vòng tròn + vỗ cánh + nhấp nhô
+  butterflies.forEach(bf => {
+    const a = t * bf.sp + bf.ph;
+    bf.g.position.set(bf.cx + Math.cos(a) * bf.r, bf.h + Math.sin(t * 1.8 + bf.ph) * 0.7, bf.cz + Math.sin(a) * bf.r);
+    bf.g.rotation.y = -a;
+    const flap = Math.sin(t * 18 + bf.ph) * 0.9;
+    bf.wl.rotation.y = flap; bf.wr.rotation.y = -flap;
   });
   // scroll xoay nhẹ camera quanh vườn
   if (!reduced && scrollState.orbit > 0) {
